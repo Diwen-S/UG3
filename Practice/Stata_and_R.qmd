@@ -1,0 +1,78 @@
+# Stata and R
+
+## Robust Standard Errors
+In probit estimation, Stata and R will produce difference robust standard errors.
+```{r}
+#| lable: loadStata&packages
+#| include: false
+library(tidyverse)
+library(psych)
+library(haven)
+library(dplyr)
+library(gridExtra)
+library(Synth)
+library(tidyr)
+library(stargazer)
+library(margins)
+library(xtable)
+library(sandwich)
+library(lmtest)
+
+
+library(Statamarkdown)
+stataexe <- "D:/Program Files/stata/StataSE-64.exe"
+knitr::opts_chunk$set(engine.path=list(stata=stataexe))
+```
+```{stata}
+#| code-fold: true
+use "E:/Curriculum001/UG3/EC338/Assignment2/Smoking.dta"
+probit smoker i.smkban age i.hsdrop i.hsgrad i.colsome i.colgrad i.black i.hispanic if female == 0,robust
+
+```
+```{r}
+#| label: load R data
+#| include: false
+data01 <- read_dta("Smoking.dta")
+data01 <- as.data.frame(data01)
+```
+```{r}
+#| label: probit estimation in R
+#| code-fold: true
+reg91 <- glm(smoker ~ as.factor(smkban) + age + hsdrop + hsgrad + colsome+ colgrad + 
+               black + hispanic,data = data01,family = binomial(link="probit"), 
+             subset = female==0)
+coeftest(reg91, vcov = vcovHC(reg91, type="HC1"))
+```
+## Plot
+A arbitary graph draw from EC338 Assignment 1
+```{r}
+#| echo: false
+#| warning: false
+df3 <- read_dta('lfs_2010_2019_ages2539_per50.dta')
+df3$formar <- ifelse(df3$cohab == 1, df3$marstat==1,0)
+s3t1f <- list()
+for (i in 1:2){
+  varname <- paste0("formar", i)
+  df31 <- df3 %>%
+  filter(sex == i)%>%
+  group_by(year, province) %>%
+  summarise(!!varname:= sum(formar == 1) / sum(cohab == 1), .groups="drop")
+df31 <- df31 %>% filter(province %in% c(5,6,9,10))
+df31$province <- as.factor(df31$province)
+s3t1f[[i]] <- ggplot(df31,aes_string(x="year", y=varname, colour = "province", group="province")) + geom_line() + ggtitle("female") + geom_vline(aes(xintercept = 2013), linetype="dotted", color = "red") +scale_color_discrete(labels = c("Quebec", "Ontario", "Aberta", "BC") )+scale_y_continuous(limits = c(0, 1))
+}
+s3t1f[[1]] <- s3t1f[[1]] + ggtitle("male")
+```
+
+```{r}
+#| label: fig-arbitary
+#| fig-cap: "Arbitary"
+#| warning: false
+#| layout-ncol: 2
+#| fig-width: 4.5
+#| fig-height: 3
+#| column: page
+
+s3t1f[[1]]
+s3t1f[[2]]
+```
