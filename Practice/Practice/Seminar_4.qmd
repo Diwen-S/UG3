@@ -1,0 +1,57 @@
+# Seminar 4:Clustering Standard Errors and Models with Binary Outcomes
+
+## Application 1: Clustering Standard Errors
+
+### General setup
+```{r}
+#| include: false
+library(Statamarkdown)
+stataexe <- "D:/Program Files/stata/StataSE-64.exe"
+knitr::opts_chunk$set(engine.path=list(stata=stataexe))
+setwd("E:/Curriculum001/R/WISE/Practice")
+```
+
+Our first application will use two simulated datasets on student achievement with the following variables:
+
+-   *y* is the outcome variable: a measure of student achievement
+-   *i* is an individual-level identifier
+-   *classroom* is a classroom-level identifier
+-   *aircon* is a binary variable equal to one if the classroom has air conditioning
+
+The goal in this application is to understand that, if we think that our data is characterised by group-level shocks, we will need to adjust the standard errors. In particular, basic standard errors are calculated on the presumption of iid error terms. However, in many applications we may think of our data being organised in a number of groups (called clusters), and the unobservables may be correlated within these groups.
+
+Why is that?
+
+Think about the example from this application. Suppose you want to estimate the effect that air conditioning has on student achievement: $y = \alpha + \beta aircon_i + η_{(c)i} + \epsilon_i$. We have two unobservables here: a classroom-level shock η(c)i and an individual shock $\epsilon\_i$ . You can think of the regression unobservables as being denoted by $u_i = \eta_{(c)i} + \epsilon_i$. The key issue in this example (and with clustering in general) is that, since two students in the same class will be exposed to the same classroom-level shock, our error term ui will no longer satisfy the iid assumption. If we do not adjust our standard errors accordingly, inference on the parameters in our model can go badly wrong.
+
+$$
+\Omega=
+\begin{bmatrix}
+\sigma^2 & 0 & 0 & \cdots & 0 \\
+0 & \sigma^2 & 0 & \cdots & 0 \\
+0 & 0 & \sigma^2 & \cdots & 0 \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+0 & 0 & 0 & \cdots & \sigma^2
+\end{bmatrix}
+$$ 
+## Clustering of Standard Error 
+In the first part, we will look at the dataset aircon1 where, by construction, the **iid assumption of our error terms holds**.
+
+```{stata}
+*** import dataset 1
+import excel using "aircon1", first
+
+*** estimating the effect of air conditioning on achievement
+
+* start with the simplest model, where assume iid errors
+reg y aircon
+```
+
+```{r}
+#| output: false
+#| code-block-border-left: true
+library(readxl)
+data4 <- read_excel("aircon1.xls")
+summary(lm(y ~ aircon, data = data4))
+```
+

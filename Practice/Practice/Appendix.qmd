@@ -1,0 +1,118 @@
+# Appendix {#sec-appendix}
+
+```{r}
+#| label: load packages
+#| include: false
+library(tidyverse)
+library(Synth)
+library(haven)
+
+#| include: false
+library(Statamarkdown)
+stataexe <- "D:/Program Files/stata/StataSE-64.exe"
+knitr::opts_chunk$set(engine.path=list(stata=stataexe))
+setwd("E:/Curriculum001/R/WISE/Practice")
+
+```
+
+> **\[definition\]** Variance equation: $A$ is a non-stochastic matrix, $y$ is a stochastic matrix $$
+> \begin{aligned}
+> Var(Ay) &=A*Var(y)*A'   \\
+> Var(\hat{\beta})&=Var((X'X)^{-1}X'y)    \\
+> &=(X'X)^{-1}X'\sigma^2IX(X'X)^{-1}\\
+> &=\sigma^2(X'X)^{-1}X(X'X)^{-1}\\
+> &=\sigma^{2}(X'X)^{-1}
+> \end{aligned}
+> $$
+
+In iid, where all observations are independent to each other, the variance-covariance looks like. $$
+\Omega=
+\begin{bmatrix}
+\sigma^2 & 0 & 0 & \cdots & 0 \\
+0 & \sigma^2 & 0 & \cdots & 0 \\
+0 & 0 & \sigma^2 & \cdots & 0 \\
+\vdots & \vdots & \vdots & \ddots & \vdots \\
+0 & 0 & 0 & \cdots & \sigma^2
+\end{bmatrix}
+= \sigma^2I
+$$
+
+Synthetic control with R
+
+```{r}
+#| code-fold: true
+#| warning: false
+df341<-read_dta('sectionC_task4_collapseddata.dta')
+df34 <- df341 %>%
+  group_by(province, year) %>%
+  summarise(across(starts_with("edu"), ~mean(.x, na.rm = TRUE)), 
+            formar = mean(formar, na.rm = TRUE), 
+            cohab = mean(cohab, na.rm = TRUE))
+df34$name <- ""
+proname <- c("Newfoundland & Labrador", "Prince Edward Island", "Nova Scotia", "New Brunswick", "Quebec","Ontario","Manitoba"," Saskatchewan","Alberta" ,"British Columbia")
+for (i in 1:10){
+df34$name <- ifelse(df34$province == i, proname[i],df34$name)
+} 
+
+df34 <- as.data.frame(df34)
+df34$province <- as.numeric(df34$province)
+# Prepare the data
+t3synp1 <- dataprep(
+   foo = df34,
+   predictors    = c("edu12", "edu13", "edu21", "edu22", "edu23", "edu31", "edu32", "edu33"),
+   predictors.op = "mean",
+   dependent     = "formar",
+   unit.variable = "province",
+   time.variable = "year",
+   unit.names.variable = "name",
+   treatment.identifier  = 10,
+   controls.identifier   = c(1:9),
+   time.predictors.prior = c(2000:2012),
+   time.optimize.ssr     = 2000:2013,
+   time.plot             = 2000:2019
+)
+
+t3syn1 <- synth(t3synp1)
+t3syng1 <- path.plot(dataprep.res = t3synp1,synth.res = t3syn1,Ylim = c(0.66,0.87), Legend = c("10.BC","synthetic 10. BC"))
+
+t3synp2 <- dataprep(
+   foo = df34,
+   predictors    = c("cohab","edu12", "edu13", "edu21", "edu22", "edu23", "edu31", "edu32", "edu33"),
+   predictors.op = "mean",
+   special.predictors = list(
+      list("formar", 2009, "mean")),
+   dependent     = "formar",
+   unit.variable = "province",
+   time.variable = "year",
+   unit.names.variable = "name",
+   treatment.identifier  = 10,
+   controls.identifier   = c(1:9),
+   time.predictors.prior = c(2000:2012),
+   time.optimize.ssr     = 2000:2013,
+   time.plot             = 2000:2019
+)
+t3syn2 <- synth(t3synp2)
+t3syng2 <- path.plot(dataprep.res = t3synp2,synth.res = t3syn2, Ylim = c(0.66,0.87), Legend = c("10.BC","synthetic 10. BC")) 
+
+t3synp3 <- dataprep(
+   foo = df34,
+   predictors    = c("cohab", "edu12", "edu13", "edu21", "edu22", "edu23", "edu31", "edu32", "edu33"),
+   predictors.op = "mean",
+   special.predictors = list(
+      list("formar", 2007, "mean"),
+      list("formar", 2009, "mean"),
+      list("formar", 2011, "mean")),
+   dependent     = "formar",
+   unit.variable = "province",
+   time.variable = "year",
+   unit.names.variable = "name",
+   treatment.identifier  = 10,
+   controls.identifier   = c(1:9),
+   time.predictors.prior = c(2000:2012),
+   time.optimize.ssr     = 2000:2011,
+   time.plot             = 2000:2019
+)
+t3syn3 <- synth(t3synp3)
+t3syng3 <- path.plot(dataprep.res = t3synp3,synth.res = t3syn3, Ylim = c(0.66,0.87), Legend = c("10.BC","synthetic 10. BC"))
+
+```
