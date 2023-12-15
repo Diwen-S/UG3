@@ -1,4 +1,4 @@
-# Stata and R
+# Stata and R {#sec-stata}
 
 ## Robust Standard Errors
 In probit estimation, Stata and R will produce difference robust standard errors.

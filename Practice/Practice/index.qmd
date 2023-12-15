@@ -1,6 +1,10 @@
-# Introduction {.unnumbered}
+# Introduction {#sec-intro}
 
 This quarto file is used to practice my formatting skills as much as possible.
 
 Thus, the *content* may **be** displayed in an ***esoteric*** pattern like this.
+
+@sec-stata
+
+@fig-linear
 
