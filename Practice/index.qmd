@@ -1,7 +1,0 @@
-# Introduction {.unnumbered}
-
-This quarto file is used to practice my formatting skills as much as possible.
-
-Thus, the *content* may **be** displayed in a ***esoteric*** pattern like this.
-
-See @fig-linear
