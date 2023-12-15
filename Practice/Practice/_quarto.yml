@@ -1,0 +1,27 @@
+project:
+  type: book
+
+book:
+  cover-image: cover.png
+  title: "Practice"
+  author: "Diwen"
+  date: "12/12/2023"
+  chapters:
+    - index.qmd
+    - Stata_and_R.qmd
+    - summary.qmd
+    - Seminar_4.qmd
+    - Appendix.qmd
+    - references.qmd
+    
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+

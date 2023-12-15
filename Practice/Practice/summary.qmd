@@ -1,0 +1,23 @@
+# Mathtype
+
+$$
+for \space D_i=\{0,1\}    \\$$ $$
+\begin{aligned}
+Var(D_i|x_i=x_j)&=\Pr(D_i|x_i=x_j)(1-\Pr(D_i|x_i=x_j))    \\
+\Sigma^m_{j=1}Var(D_i|x_i=x_j)\Pr(D_i|x_i=x_j) &= \Pr(D_i|x_i=x_j)(1-\Pr(D_i|x_i=x_j))\Pr(x_i=x_j)    \\
+\end{aligned}
+$$ 
+$$for \space x_i=\{1,2...m\}  $$
+
+$$\begin{aligned}
+\Sigma^m_{j=1}Var(D_i|x_i=x_j)\Pr(D_i|x_i=x_j) &= \mathbb{E}[Var(D_i|x_i=x_j)]    \\
+&=\mathbb{E}[\Pr(D_i|x_i=x_j)(1-\Pr(D_i|x_i=x_j))]    \\
+&=\mathbb{E}[e(x_i)-(1-e(x_i))]  
+\end{aligned}
+$$ 
+
+## Proofreader
+
+![Linear](PPTii.png){#fig-linear}
+
+Austen-Smith, D. & Banks, J.S. 2005, Positive political theory II: strategy and structure, University of Michigan Press, Ann Arbor, \[Mich.\].
